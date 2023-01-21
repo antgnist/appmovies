@@ -1,0 +1,98 @@
+.cardFilm{
+    display: flex;
+    height: 280px;
+    overflow: hidden;
+    box-shadow: 4px 0px 5px rgb(0 0 0 / 8%), 4px 8px 5px rgb(0 0 0 / 8%) ;
+}
+
+
+.cardFilm__img {
+    width: 330px;
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.cardFilm__content{
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px 20px;
+    flex-basis: 454px;
+    flex-grow: 2;
+}
+
+.cardFilm__header {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.cardFilm__headerWrapper {
+    display: flex;
+    justify-content: space-between;
+    gap:5px;
+}
+.cardFilm__title {
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px; 
+    margin: 0px;
+}
+
+.cardFilm__rank{
+    width: 30px;
+    height: 30px;
+    border: 2px solid #E9D100;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    font-family: Inter;
+    font-size: 12px;
+    line-height: 22px;
+}
+
+.cardFilm__buttons {
+    display: flex;
+    gap: 8px
+}
+
+.cardFilm__button {
+    padding: 0 4px;
+    border-radius: 2px;
+    font-size: 12px;
+    line-height: 14.52px;
+    font-family: 'Inter';
+    height: 20px;
+}
+
+.cardFilm__date{
+    font-family: Inter;
+    font-size: 12px;
+    line-height: 22px;
+    color: #827E7E;
+}
+
+.cardFilm__overview{
+    font-size: 12px;
+    line-height: 22px; 
+    font-family: 'Inter';
+    margin: 0;
+    /*чуть похже уберём*/
+    overflow: hidden;
+} 
+
+.cardFilm__stars {
+    display: flex;
+    margin-bottom: 5px;
+    margin-top: auto;
+}
+
+.cardFilm__stars  .ant-rate-star:not(:last-child) {
+    margin-right: auto;
+}
