@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { Row, Col, Spin, Alert } from 'antd';
+import _ from 'lodash';
 
 import CardFilm from '../CardFilm';
 import FilmsService from '../../services/FilmsService';
@@ -7,27 +8,66 @@ import FilmsService from '../../services/FilmsService';
 import './CardsList.css';
 
 export default class CardsList extends Component {
-  filmsService = new FilmsService();
-
   state = { listFilms: [], status: 'loading' };
 
+  filmsService = new FilmsService();
+
+  debounedSearchFilms = _.debounce(() => {
+    this.searchFilms();
+  }, 1500);
+
   componentDidMount() {
-    this.requestListFilms();
+    this.searchFilms();
   }
+
+  componentDidUpdate(prevProps) {
+    const { pageNumber, searchQuery } = this.props;
+    if (prevProps.pageNumber !== pageNumber) {
+      this.searchFilms();
+    }
+
+    if (prevProps.searchQuery !== searchQuery) {
+      this.debounedSearchFilms();
+    }
+  }
+
+  componentDidCatch() {
+    this.onError();
+  }
+
+  onLoading = () => {
+    this.setState({
+      status: 'loading',
+    });
+  };
 
   onError = () => {
     this.setState({ status: 'error' });
   };
 
-  requestListFilms() {
+  // onNotFound = () => {
+  //   this.setState({ status: 'notfound' });
+  // };
+
+  searchFilms = () => {
+    const { activeTab, pageNumber, changeTotalResults, searchQuery } = this.props;
+    this.onLoading();
     this.filmsService
-      .getMovies('The way back')
-      .then((films) => {
-        console.log(films);
-        this.setState({ listFilms: films, status: 'ok' });
+      .getMovies(searchQuery, pageNumber)
+      .then((result) => {
+        console.log('в CardList - searchFilms: ', result);
+        if (result.totalResults === 0) {
+          this.setState({
+            listFilms: null,
+            status: activeTab === 'search' ? 'notfound' : 'norated',
+          });
+        } else {
+          this.setState({ listFilms: result.films, status: 'ok' });
+        }
+        changeTotalResults(result.totalResults);
       })
       .catch(this.onError);
-  }
+  };
 
   render() {
     const { listFilms, status } = this.state;
@@ -46,13 +86,24 @@ export default class CardsList extends Component {
           />
         );
         break;
+      case 'notfound':
+        content = (
+          <Alert
+            message="Uhh... Not Found"
+            description="
+            Movies were not found. Try changing the request."
+            type="warning"
+            showIcon
+          />
+        );
+        break;
       default:
         content = <ShowFilms listFilms={listFilms} />;
         break;
     }
 
     return (
-      <div className="site-card-wrapper">
+      <div className="cardlist-wrapper">
         <Row gutter={[35, 35]} justify="center">
           {content}
         </Row>
@@ -61,6 +112,8 @@ export default class CardsList extends Component {
   }
 }
 
+CardsList.defaultProps = { searchQuery: 'the way back' };
+
 CardsList.propTypes = {};
 
 function ShowFilms({ listFilms }) {
@@ -68,10 +121,11 @@ function ShowFilms({ listFilms }) {
     <Col span={12} key={film.id}>
       <CardFilm
         title={film.title}
-        rank={film.vote_average}
-        date={film.release_date}
+        rank={film.rank}
+        date={film.date}
         overview={film.overview}
-        img={film.poster_path}
+        img={film.img}
+        genreIds={film.genreIds}
       />
     </Col>
   ));

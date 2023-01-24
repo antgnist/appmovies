@@ -1,0 +1,7 @@
+.cardlist-wrapper {
+    padding-top: 16px;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
