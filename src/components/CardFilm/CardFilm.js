@@ -44,7 +44,6 @@ function cropOverview(overview, cardRef, headerRef, overviewRef) {
 
 const mapGenres = (genreList, genreIds) => {
   if (!genreIds || !genreList) return null;
-
   return genreIds.map((id) => {
     const genre = genreList[id];
     return genre ? (
@@ -60,38 +59,25 @@ const mapGenres = (genreList, genreIds) => {
   });
 };
 
-// const mapGenres = (genreList, genreIds) => {
-//   if (!genreList || !genreIds || !(genreList instanceof Array)) return null;
-
-//   const genreTextArr = genreIds.map((id) => {
-//     const currentGenre = genreList.find((item) => +item.id === +id);
-//     return currentGenre ? currentGenre.name : null;
-//   });
-//   return genreTextArr.map((genre) =>
-//     genre ? (
-//       <Button
-//         key={genre}
-//         size="small"
-//         className="cardFilm__button"
-//         style={{ padding: '0 4px', borderRadius: '2px', fontSize: '12px', height: '20px' }}
-//       >
-//         {genre}
-//       </Button>
-//     ) : null
-//   );
-// };
-
 export default class CardFilm extends Component {
   imgBase = 'https://image.tmdb.org/t/p/original';
 
-  constructor(props) {
-    super(props);
-    this.cardRef = React.createRef();
-    this.headerRef = React.createRef();
-    this.overviewRef = React.createRef();
-    this.overview = props.overview;
-    this.state = { cropedText: null };
-  }
+  state = { cropedText: null };
+
+  cardRef = React.createRef();
+
+  headerRef = React.createRef();
+
+  overviewRef = React.createRef();
+
+  // constructor(props) {
+  //   super(props);
+  //   this.cardRef = React.createRef();
+  //   this.headerRef = React.createRef();
+  //   this.overviewRef = React.createRef();
+  //   this.overview = props.overview;
+  //   this.state = { cropedText: null };
+  // }
 
   componentDidMount() {
     this.setState({
@@ -101,17 +87,18 @@ export default class CardFilm extends Component {
   }
 
   componentDidUpdate() {
+    const { overview } = this.props;
     const { antiloop } = this.state;
     if (antiloop) {
       this.setState({
-        cropedText: cropOverview(this.overview, this.cardRef, this.headerRef, this.overviewRef),
+        cropedText: cropOverview(overview, this.cardRef, this.headerRef, this.overviewRef),
         antiloop: false,
       });
     }
   }
 
   render() {
-    const { img, title, rank, date, genreIds } = this.props;
+    const { id, img, title, rank, date, genreIds, ratedFilms, changeRate } = this.props;
     const { cropedText } = this.state;
     const formatedDate = date ? <div className="movie_card__date">{format(new Date(date), 'PP')}</div> : null;
 
@@ -138,7 +125,15 @@ export default class CardFilm extends Component {
                 {cropedText}
               </p>
 
-              <Rate allowHalf count={10} defaultValue={5} className="cardFilm__stars" />
+              <Rate
+                allowHalf
+                count={10}
+                value={+ratedFilms[id]}
+                onChange={(value) => {
+                  changeRate(id, value);
+                }}
+                className="cardFilm__stars"
+              />
             </div>
           </div>
         )}

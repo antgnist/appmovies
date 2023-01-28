@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { Layout, Alert, Pagination } from 'antd';
+import { Layout, Alert } from 'antd';
 import { Offline } from 'react-detect-offline';
 
 import { GenreProvider } from '../GenreContext';
@@ -8,20 +8,24 @@ import Header from '../Header/Header';
 import CardsList from '../CardsList';
 import './App.css';
 
+const GUEST_SESSION = '4a6e36f0fcfd0bcfe4f4d3a7a2fb5ac4';
+
 export default class App extends Component {
   state = {
     pageNumber: 1,
     totalResults: 0,
     searchQuery: 'the way',
-    genres: 777,
+    genres: null,
     activeTab: 'search',
     isError: false,
+    guestSessionId: null,
   };
 
   filmsService = new FilmsService();
 
   componentDidMount() {
     this.setGenres();
+    this.setState({ guestSessionId: GUEST_SESSION });
   }
 
   componentDidCatch() {
@@ -49,8 +53,10 @@ export default class App extends Component {
 
   changeActiveTab = (tab) => this.changeInState('activeTab', tab);
 
+  changeGuestSessionId = (id) => this.changeInState('guestSessionId', id);
+
   render() {
-    const { pageNumber, totalResults, searchQuery, genres, activeTab, isError } = this.state;
+    const { pageNumber, totalResults, searchQuery, genres, activeTab, isError, guestSessionId } = this.state;
 
     if (isError) {
       return (
@@ -66,14 +72,25 @@ export default class App extends Component {
       <Layout className="">
         <div className="app">
           <div style={{ display: 'flex' }}>
-            <button type="button">Удалить текущую сессию</button>
-            <span> Сессия сейчас</span>
+            <button
+              type="button"
+              onClick={() => {
+                this.filmsService.createGuestSession().then((body) => {
+                  this.changeGuestSessionId(body.guest_session_id);
+                });
+              }}
+            >
+              Создать новую сессию
+            </button>
+            <span> Сессия сейчас: {guestSessionId}</span>
           </div>
           <Header
             searchQuery={searchQuery}
             changeSearchQuery={this.changeSearchQuery}
             activeTab={activeTab}
             changeActiveTab={this.changeActiveTab}
+            pageNumber={pageNumber}
+            changePagination={this.changePagination}
           />
           <Offline>
             <Alert
@@ -87,12 +104,15 @@ export default class App extends Component {
           <GenreProvider value={genres}>
             <CardsList
               pageNumber={pageNumber}
+              totalResults={totalResults}
               changeTotalResults={this.changeTotalResults}
+              changePagination={this.changePagination}
               searchQuery={searchQuery}
               activeTab={activeTab}
+              guestSessionId={guestSessionId}
             />
           </GenreProvider>
-          <Pagination
+          {/* <Pagination
             className="pagination"
             current={pageNumber}
             onChange={(num) => this.changePagination(num)}
@@ -100,7 +120,7 @@ export default class App extends Component {
             pageSize={20}
             hideOnSinglePage
             showQuickJumper={false}
-          />
+          /> */}
         </div>
       </Layout>
     );

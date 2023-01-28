@@ -1,9 +1,18 @@
 import { Tabs, Input } from 'antd';
+import { useState } from 'react';
 import './Header.css';
 
-function Header({ searchQuery, changeSearchQuery, activeTab, changeActiveTab }) {
+function Header({ searchQuery, changeSearchQuery, activeTab, changeActiveTab, pageNumber, changePagination }) {
+  const [prevPage, setPrevPage] = useState(1);
+
   const inputHandler = (value) => {
     changeSearchQuery(value);
+  };
+
+  const tabChange = (activeKey) => {
+    changeActiveTab(activeKey);
+    changePagination(prevPage);
+    setPrevPage(pageNumber);
   };
 
   return (
@@ -13,7 +22,7 @@ function Header({ searchQuery, changeSearchQuery, activeTab, changeActiveTab }) 
         defaultActiveKey="search"
         centered
         onChange={(activeKey) => {
-          changeActiveTab(activeKey);
+          tabChange(activeKey);
         }}
         items={[
           {
@@ -33,7 +42,6 @@ function Header({ searchQuery, changeSearchQuery, activeTab, changeActiveTab }) 
           {
             label: 'Rated',
             key: 'rated',
-            children: 'Content of Tab Pane rated',
           },
         ]}
       />

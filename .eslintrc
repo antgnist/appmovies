@@ -18,6 +18,7 @@
     },
     "plugins": ["react", "jsx-a11y", "import", "react-hooks", "prettier"],
     "rules": {
+      "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
       "react/state-in-constructor": 0,
       "indent": ["error", 2,  { "SwitchCase": 1 }],
       "prettier/prettier": "error",

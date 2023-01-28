@@ -5,3 +5,58 @@
     align-items: center;
     justify-content: center;
 }
+
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 37px;
+  }
+  
+  .pagination .ant-pagination-options {
+    display: none;
+  }
+  
+  .pagination li {
+    border: none;
+    font-size: 12px;
+    line-height: 22px;
+  }
+  
+  .pagination .ant-pagination-item {
+    font-family: Inter;
+    border: none;
+    font-size: 12px;
+    line-height: 22px;
+    border-radius: 4px;
+    height: 22px;
+    min-width: 22px;
+  }
+  
+  .ant-pagination-item-link{
+    border: none;
+    font-size: 12px;
+    line-height: 22px;
+  }
+  
+  .pagination .ant-pagination-item-active {
+    background: #1890ff;
+    border-radius: 4px;
+    font-size: 12px;
+    height: 22px;
+    min-width: 22px;
+  }
+  
+  .pagination .ant-pagination-item-active a{
+    color:white
+  }
+  
+  .pagination .ant-pagination-item-active:hover a {
+    color:white
+  }
+  
+  .pagination .ant-pagination-next, .pagination .ant-pagination-prev {
+    height: 22px;
+    min-width: 22px;
+  }
