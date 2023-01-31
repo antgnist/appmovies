@@ -8,13 +8,13 @@ import Header from '../Header/Header';
 import CardsList from '../CardsList';
 import './App.css';
 
-const GUEST_SESSION = '4a6e36f0fcfd0bcfe4f4d3a7a2fb5ac4';
+// const GUEST_SESSION = '4a6e36f0fcfd0bcfe4f4d3a7a2fb5ac4';
 
 export default class App extends Component {
   state = {
     pageNumber: 1,
     totalResults: 0,
-    searchQuery: 'the way',
+    searchQuery: '',
     genres: null,
     activeTab: 'search',
     isError: false,
@@ -25,7 +25,7 @@ export default class App extends Component {
 
   componentDidMount() {
     this.setGenres();
-    this.setState({ guestSessionId: GUEST_SESSION });
+    this.filmsService.setGuestSession().then((id) => this.changeGuestSessionId(id));
   }
 
   componentDidCatch() {
@@ -35,7 +35,6 @@ export default class App extends Component {
   setGenres = () => {
     this.filmsService.getGenres().then((genres) => {
       this.setState({ genres });
-      console.log('в Арр setgenres: ', genres);
     });
   };
 
@@ -72,16 +71,6 @@ export default class App extends Component {
       <Layout className="">
         <div className="app">
           <div style={{ display: 'flex' }}>
-            <button
-              type="button"
-              onClick={() => {
-                this.filmsService.createGuestSession().then((body) => {
-                  this.changeGuestSessionId(body.guest_session_id);
-                });
-              }}
-            >
-              Создать новую сессию
-            </button>
             <span> Сессия сейчас: {guestSessionId}</span>
           </div>
           <Header

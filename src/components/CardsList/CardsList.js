@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { Row, Col, Spin, Alert, Pagination } from 'antd';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 import CardFilm from '../CardFilm';
 import FilmsService from '../../services/FilmsService';
@@ -73,9 +74,10 @@ export default class CardsList extends Component {
     this.setState({ status: 'error' });
   };
 
-  // onNotFound = () => {
-  //   this.setState({ status: 'notfound' });
-  // };
+  onRatingError = () => {
+    this.setState({ status: 'ratingerror' });
+  };
+
   changeAntiDblRequest = () => {
     this.setState(({ antiDblRequest }) => ({
       antiDblRequest: !antiDblRequest,
@@ -87,7 +89,7 @@ export default class CardsList extends Component {
     this.filmsService
       .rateMovie(guestSessionId, id, rate)
       .then((result) => console.log('результат установки оценки на сервере: ', result.status_message))
-      .catch((err) => console.log('Не удалось установить оценку, ошибка: ', err));
+      .catch(this.onRatingError);
     this.setState(({ ratedFilms }) => ({ ratedFilms: { ...ratedFilms, [id]: rate } }));
   };
 
@@ -161,6 +163,17 @@ export default class CardsList extends Component {
           />
         );
         break;
+      case 'norated':
+        content = (
+          <Alert
+            message="There are no rated movies."
+            description="
+              Movies were not found. Set your rating on the Search tab."
+            type="warning"
+            showIcon
+          />
+        );
+        break;
       default:
         content = (
           <>
@@ -183,7 +196,23 @@ export default class CardsList extends Component {
 
     return (
       <div className="cardlist-wrapper">
-        <Row gutter={[35, 35]} justify="center">
+        {status === 'ratingerror' && (
+          <Alert
+            type="error"
+            message="Error "
+            description="Failed to rate the movie. Try again later."
+            onClose={() => {
+              this.setState({ status: 'ok' });
+            }}
+            closable
+            banner
+            showIcon
+            className="warning"
+            style={{ width: '100%', marginBottom: '16px' }}
+          />
+        )}
+
+        <Row gutter={[35, 35]} justify="center" className="testFlex">
           {content}
         </Row>
       </div>
@@ -191,9 +220,14 @@ export default class CardsList extends Component {
   }
 }
 
-CardsList.defaultProps = { searchQuery: 'the way back' };
+CardsList.defaultProps = { searchQuery: '', pageNumber: 1, totalResults: 0, changePagination: () => {} };
 
-CardsList.propTypes = {};
+CardsList.propTypes = {
+  searchQuery: PropTypes.string,
+  pageNumber: PropTypes.number,
+  totalResults: PropTypes.number,
+  changePagination: PropTypes.func,
+};
 
 function ShowFilms({ listFilms, ratedFilms, changeRate }) {
   return listFilms.map((film) => (

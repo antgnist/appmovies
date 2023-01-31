@@ -1,5 +1,4 @@
 import APIkey from './APIkey';
-// import guestId from './guestId';
 
 class FilmsService {
   #apiBase = 'https://api.themoviedb.org/3';
@@ -65,6 +64,26 @@ class FilmsService {
     return FilmsService.formatMovies(body);
   };
 
+  setGuestSession = async () => {
+    const sessionId = localStorage.getItem('movieGuestSessionId');
+    const logIn = sessionId ? await this.chekGuestSessionId(sessionId) : false;
+
+    if (logIn) return sessionId;
+
+    const body = await this.getResource('/authentication/guest_session/new');
+    if (body.success) localStorage.setItem('movieGuestSessionId', body.guest_session_id);
+    return body.guest_session_id;
+  };
+
+  chekGuestSessionId = async (guestSessionId) => {
+    try {
+      const body = await this.getResource(`/guest_session/${guestSessionId}`);
+      return body.success;
+    } catch (error) {
+      return false;
+    }
+  };
+
   getAllRattedFilms = async (guestSessionId, page = 1) => {
     const body = await this.getResource(`/guest_session/${guestSessionId}/rated/movies`, `&page=${page}`);
     return FilmsService.formatMovies(body);
@@ -88,12 +107,6 @@ class FilmsService {
     }
     console.log('Оценённые фильмы от сервера: ', resultArr);
     return formatRatingId(resultArr);
-  };
-
-  createGuestSession = async () => {
-    const body = await this.getResource('/authentication/guest_session/new');
-    console.log('in FilmService -  createGuestSession: ', body.guest_session_id, 'закончится:', body.expires_at);
-    return body;
   };
 
   rateMovie = async (guestSessionId, filmId, value) => {
