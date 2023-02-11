@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { GenreConsumer } from '../GenreContext';
 
 import noImage from './no-image.webp';
+
 import './CardFilm.css';
 
 const rankColor = (rank) => {
@@ -23,23 +24,20 @@ function cropOverview(overview, cardRef, headerRef, overviewRef) {
   const cardHeight = cardRef.current.offsetHeight;
   const headerHeight = headerRef.current.offsetHeight;
   const overviewWidth = overviewRef.current.offsetWidth;
+
   // console.log('Высота карточки: ', cardHeight);
   // console.log('Высота Хедера: ', headerHeight);
   // console.log('Ширина описания:: ', overviewWidth);
 
-  const maxHeight = cardHeight - (headerHeight + 90);
-
-  // const z = overviewWidth > 300 ? 4 : 5.5;
-
-  const letersPerLine = Math.floor(overviewWidth / 5.5);
-
-  const cropLength = Math.floor(letersPerLine * (maxHeight / 25));
+  const maxHeight = cardHeight - (headerHeight + 70);
+  const letersPerLine = Math.floor(overviewWidth / 5.9); // делим на ширину одного символа
+  const cropLength = Math.floor(letersPerLine * (maxHeight / 22 - 1)); // делим на высоту строки, получаем полную допустимую длину
 
   if (cropLength < 0) return null;
   if (overview.length < cropLength) return overview;
   const cropped = overview.slice(0, cropLength).split(' ');
   cropped.pop();
-  return [...cropped, '...'].join(' ');
+  return `${cropped.join(' ')}\u2026`;
 }
 
 const mapGenres = (genreList, genreIds) => {
@@ -70,29 +68,30 @@ export default class CardFilm extends Component {
 
   overviewRef = React.createRef();
 
-  // constructor(props) {
-  //   super(props);
-  //   this.cardRef = React.createRef();
-  //   this.headerRef = React.createRef();
-  //   this.overviewRef = React.createRef();
-  //   this.overview = props.overview;
-  //   this.state = { cropedText: null };
-  // }
-
   componentDidMount() {
+    const { overview } = this.props;
     this.setState({
-      cropedText: null,
-      antiloop: true,
+      cropedText: cropOverview(overview, this.cardRef, this.headerRef, this.overviewRef),
     });
   }
 
-  componentDidUpdate() {
-    const { overview } = this.props;
-    const { antiloop } = this.state;
-    if (antiloop) {
+  getSnapshotBeforeUpdate() {
+    const headerHeight = this.headerRef.current.offsetHeight;
+    return headerHeight || null;
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const { overview, resizeWidth } = this.props;
+    if (snapshot !== this.headerRef.current.offsetHeight && snapshot !== null) {
+      const newCropedText = cropOverview(overview, this.cardRef, this.headerRef, this.overviewRef);
       this.setState({
-        cropedText: cropOverview(overview, this.cardRef, this.headerRef, this.overviewRef),
-        antiloop: false,
+        cropedText: newCropedText,
+      });
+    }
+    if (resizeWidth !== prevProps.resizeWidth) {
+      const newCropedText = cropOverview(overview, this.cardRef, this.headerRef, this.overviewRef);
+      this.setState({
+        cropedText: newCropedText,
       });
     }
   }
@@ -100,7 +99,7 @@ export default class CardFilm extends Component {
   render() {
     const { id, img, title, rank, date, genreIds, ratedFilms, changeRate } = this.props;
     const { cropedText } = this.state;
-    const formatedDate = date ? <div className="movie_card__date">{format(new Date(date), 'PP')}</div> : null;
+    const formatedDate = date ? <div className="cardFilm__date">{format(new Date(date), 'PP')}</div> : null;
 
     return (
       <GenreConsumer>
@@ -110,20 +109,22 @@ export default class CardFilm extends Component {
               <Image src={img ? this.imgBase + img : noImage} alt={title} width="100%" preview={Boolean(img)} />
             </div>
             <div className="cardFilm__content">
-              <header className="cardFilm__header" ref={this.headerRef}>
-                <div className="cardFilm__headerWrapper">
-                  <h5 className="cardFilm__title">{title}</h5>
-                  <div className="cardFilm__rank" style={rankColor(rank)}>
-                    {rank}
+              <div className="cardFilm__content-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                <header className="cardFilm__header" ref={this.headerRef}>
+                  <div className="cardFilm__headerWrapper">
+                    <h5 className="cardFilm__title">{title}</h5>
+                    <div className="cardFilm__rank" style={rankColor(rank)}>
+                      {rank}
+                    </div>
                   </div>
-                </div>
-                {formatedDate}
-                <div className="cardFilm__buttons">{mapGenres(genres, genreIds)}</div>
-              </header>
+                  {formatedDate}
+                  <div className="cardFilm__buttons">{mapGenres(genres, genreIds)}</div>
+                </header>
 
-              <p className="cardFilm__overview" ref={this.overviewRef}>
-                {cropedText}
-              </p>
+                <p className="cardFilm__overview" ref={this.overviewRef}>
+                  {cropedText}
+                </p>
+              </div>
 
               <Rate
                 allowHalf

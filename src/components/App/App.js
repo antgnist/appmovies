@@ -1,11 +1,13 @@
 import { Component } from 'react';
 import { Layout, Alert } from 'antd';
 import { Offline } from 'react-detect-offline';
+import _ from 'lodash';
 
 import { GenreProvider } from '../GenreContext';
 import FilmsService from '../../services/FilmsService';
 import Header from '../Header/Header';
 import CardsList from '../CardsList';
+
 import './App.css';
 
 // const GUEST_SESSION = '4a6e36f0fcfd0bcfe4f4d3a7a2fb5ac4';
@@ -19,17 +21,30 @@ export default class App extends Component {
     activeTab: 'search',
     isError: false,
     guestSessionId: null,
+    resizeWidth: null,
   };
 
   filmsService = new FilmsService();
 
+  debounceResize = _.debounce((e) => {
+    const { resizeWidth } = this.state;
+    if (e.target.innerWidth < 1010 || resizeWidth < 1010) {
+      this.changeResizeWidth(e.target.innerWidth);
+    }
+  }, 400);
+
   componentDidMount() {
     this.setGenres();
     this.filmsService.setGuestSession().then((id) => this.changeGuestSessionId(id));
+    window.addEventListener('resize', this.resizeHandler);
   }
 
   componentDidCatch() {
     this.setState({ isError: true });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resizeHandler);
   }
 
   setGenres = () => {
@@ -44,6 +59,10 @@ export default class App extends Component {
     });
   };
 
+  resizeHandler = (e) => {
+    this.debounceResize(e);
+  };
+
   changePagination = (num) => this.changeInState('pageNumber', num);
 
   changeTotalResults = (num) => this.changeInState('totalResults', num);
@@ -54,8 +73,14 @@ export default class App extends Component {
 
   changeGuestSessionId = (id) => this.changeInState('guestSessionId', id);
 
+  changeResizeWidth = (num) => {
+    console.log('Меняю');
+    this.changeInState('resizeWidth', num);
+  };
+
   render() {
-    const { pageNumber, totalResults, searchQuery, genres, activeTab, isError, guestSessionId } = this.state;
+    const { pageNumber, totalResults, searchQuery, genres, activeTab, isError, guestSessionId, resizeWidth } =
+      this.state;
 
     if (isError) {
       return (
@@ -68,11 +93,8 @@ export default class App extends Component {
       );
     }
     return (
-      <Layout className="">
+      <Layout className="" style={{ minHeight: '100vh' }}>
         <div className="app">
-          <div style={{ display: 'flex' }}>
-            <span> Сессия сейчас: {guestSessionId}</span>
-          </div>
           <Header
             searchQuery={searchQuery}
             changeSearchQuery={this.changeSearchQuery}
@@ -99,17 +121,9 @@ export default class App extends Component {
               searchQuery={searchQuery}
               activeTab={activeTab}
               guestSessionId={guestSessionId}
+              resizeWidth={resizeWidth}
             />
           </GenreProvider>
-          {/* <Pagination
-            className="pagination"
-            current={pageNumber}
-            onChange={(num) => this.changePagination(num)}
-            total={Math.min(totalResults, 100 * 20)}
-            pageSize={20}
-            hideOnSinglePage
-            showQuickJumper={false}
-          /> */}
         </div>
       </Layout>
     );

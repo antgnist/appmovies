@@ -18,7 +18,7 @@ export default class CardsList extends Component {
     this.changeAntiDblRequest();
     changePagination(1);
     this.searchFilms(1);
-  }, 1500);
+  }, 700);
 
   componentDidMount() {
     this.searchFilms();
@@ -136,7 +136,7 @@ export default class CardsList extends Component {
 
   render() {
     const { listFilms, status, ratedFilms } = this.state;
-    const { pageNumber, totalResults, changePagination } = this.props;
+    const { pageNumber, totalResults, changePagination, resizeWidth } = this.props;
     let content;
     switch (status) {
       case 'loading':
@@ -177,7 +177,12 @@ export default class CardsList extends Component {
       default:
         content = (
           <>
-            <ShowFilms listFilms={listFilms} ratedFilms={ratedFilms} changeRate={this.changeRate} />
+            <ShowFilms
+              listFilms={listFilms}
+              ratedFilms={ratedFilms}
+              changeRate={this.changeRate}
+              resizeWidth={resizeWidth}
+            />
             <Pagination
               className="pagination"
               current={pageNumber}
@@ -229,9 +234,9 @@ CardsList.propTypes = {
   changePagination: PropTypes.func,
 };
 
-function ShowFilms({ listFilms, ratedFilms, changeRate }) {
+function ShowFilms({ listFilms, ratedFilms, changeRate, resizeWidth }) {
   return listFilms.map((film) => (
-    <Col span={12} key={film.id}>
+    <Col md={12} xs={24} key={film.id}>
       <CardFilm
         id={film.id}
         title={film.title}
@@ -242,6 +247,7 @@ function ShowFilms({ listFilms, ratedFilms, changeRate }) {
         genreIds={film.genreIds}
         ratedFilms={ratedFilms}
         changeRate={changeRate}
+        resizeWidth={resizeWidth}
       />
     </Col>
   ));
