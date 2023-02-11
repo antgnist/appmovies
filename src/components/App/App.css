@@ -9,9 +9,15 @@ body {
   background: #ffff;
   max-width: 1010px;
   width: 100%;
-  padding: 0px 32px;
+  padding: 0px 16px;
   padding-bottom: 16px;
   margin: 0 auto; 
+}
+
+@media (min-width:990px) {
+  .app{
+    padding: 0px 32px;
+  }
 }
 
 .pagination {

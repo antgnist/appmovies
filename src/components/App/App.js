@@ -10,8 +10,6 @@ import CardsList from '../CardsList';
 
 import './App.css';
 
-// const GUEST_SESSION = '4a6e36f0fcfd0bcfe4f4d3a7a2fb5ac4';
-
 export default class App extends Component {
   state = {
     pageNumber: 1,
@@ -74,7 +72,6 @@ export default class App extends Component {
   changeGuestSessionId = (id) => this.changeInState('guestSessionId', id);
 
   changeResizeWidth = (num) => {
-    console.log('Меняю');
     this.changeInState('resizeWidth', num);
   };
 

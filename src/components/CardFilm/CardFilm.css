@@ -2,7 +2,7 @@
 
 
 .cardFilm{
-
+    position: relative;
     box-sizing: border-box; 
     display: flex;
     height: 280px;
@@ -107,9 +107,36 @@
 .cardFilm__stars {
     display: flex;
     margin-bottom: 5px;
-    /* margin-top: auto; */
+    justify-content: flex-end;
 }
 
-.cardFilm__stars  .ant-rate-star:not(:last-child) {
+/* .cardFilm__stars  .ant-rate-star:not(:last-child) {
     margin-right: auto;
+} */
+
+@media (max-width: 990px) {
+    .cardFilm{
+        height: 245px;
+    }
+    .cardFilm__content{
+        padding: 4px 10px;;
+    }
+    .cardFilm__header{
+        margin-left: 70px;
+        min-height: 95px;
+    }
+    .cardFilm__img{
+        position: absolute;
+        height: auto;
+        /* left: 10px; */
+        top: 6px;
+        width: 60px;
+    }
 }
+
+@media (min-width:990px) {
+    .cardFilm__stars .ant-rate-star:not(:last-child) {
+      margin-right: auto;
+    }
+}
+

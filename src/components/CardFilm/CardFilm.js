@@ -31,7 +31,8 @@ function cropOverview(overview, cardRef, headerRef, overviewRef) {
 
   const maxHeight = cardHeight - (headerHeight + 70);
   const letersPerLine = Math.floor(overviewWidth / 5.9); // делим на ширину одного символа
-  const cropLength = Math.floor(letersPerLine * (maxHeight / 22 - 1)); // делим на высоту строки, получаем полную допустимую длину
+  const z = cardRef.current.offsetWidth < 440 ? 0 : 1;
+  const cropLength = Math.floor(letersPerLine * (maxHeight / 22 - z)); // делим на высоту строки, получаем полную допустимую длину
 
   if (cropLength < 0) return null;
   if (overview.length < cropLength) return overview;
@@ -39,23 +40,6 @@ function cropOverview(overview, cardRef, headerRef, overviewRef) {
   cropped.pop();
   return `${cropped.join(' ')}\u2026`;
 }
-
-const mapGenres = (genreList, genreIds) => {
-  if (!genreIds || !genreList) return null;
-  return genreIds.map((id) => {
-    const genre = genreList[id];
-    return genre ? (
-      <Button
-        key={genre}
-        size="small"
-        className="cardFilm__button"
-        style={{ padding: '0 4px', borderRadius: '2px', fontSize: '12px', height: '20px' }}
-      >
-        {genre}
-      </Button>
-    ) : null;
-  });
-};
 
 export default class CardFilm extends Component {
   imgBase = 'https://image.tmdb.org/t/p/original';
@@ -75,14 +59,21 @@ export default class CardFilm extends Component {
     });
   }
 
-  getSnapshotBeforeUpdate() {
-    const headerHeight = this.headerRef.current.offsetHeight;
-    return headerHeight || null;
-  }
+  // getSnapshotBeforeUpdate() {
+  //   const headerHeight = this.headerRef.current.offsetHeight;
+  //   return headerHeight || null;
+  // }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { overview, resizeWidth } = this.props;
-    if (snapshot !== this.headerRef.current.offsetHeight && snapshot !== null) {
+  componentDidUpdate(prevProps) {
+    const { overview, resizeWidth, ratedFilms } = this.props;
+
+    // if (snapshot !== this.headerRef.current.offsetHeight) {
+    //   const newCropedText = cropOverview(overview, this.cardRef, this.headerRef, this.overviewRef);
+    //   this.setState({
+    //     cropedText: newCropedText,
+    //   });
+    // }
+    if (ratedFilms !== prevProps.ratedFilms) {
       const newCropedText = cropOverview(overview, this.cardRef, this.headerRef, this.overviewRef);
       this.setState({
         cropedText: newCropedText,
@@ -95,6 +86,27 @@ export default class CardFilm extends Component {
       });
     }
   }
+
+  mapGenres = (genreList, genreIds) => {
+    const { pickGenre } = this.props;
+    if (!genreIds || !genreList) return null;
+    return genreIds.map((id) => {
+      const genre = genreList[id];
+      return genre ? (
+        <Button
+          key={genre}
+          size="small"
+          className="cardFilm__button"
+          style={{ padding: '0 4px', borderRadius: '2px', fontSize: '12px', height: '20px' }}
+          onClick={() => {
+            pickGenre(id);
+          }}
+        >
+          {genre}
+        </Button>
+      ) : null;
+    });
+  };
 
   render() {
     const { id, img, title, rank, date, genreIds, ratedFilms, changeRate } = this.props;
@@ -118,7 +130,7 @@ export default class CardFilm extends Component {
                     </div>
                   </div>
                   {formatedDate}
-                  <div className="cardFilm__buttons">{mapGenres(genres, genreIds)}</div>
+                  <div className="cardFilm__buttons">{this.mapGenres(genres, genreIds)}</div>
                 </header>
 
                 <p className="cardFilm__overview" ref={this.overviewRef}>

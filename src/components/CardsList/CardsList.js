@@ -33,13 +33,12 @@ export default class CardsList extends Component {
       activeTab === prevProps.activeTab
     ) {
       if (activeTab === 'search') this.searchFilms();
-      if (activeTab === 'rated') this.ratedFilms();
+      if (activeTab === 'rated') this.ratedFilmsPanel();
     }
 
     if (prevProps.activeTab !== activeTab) {
-      console.log('ЗАШЛИ В ВЕТКУ  prevProps.activeTab !== activeTab !!!!!!');
       if (activeTab === 'rated') {
-        this.ratedFilms();
+        this.ratedFilmsPanel();
       }
       if (activeTab === 'search') {
         this.searchFilms();
@@ -51,13 +50,12 @@ export default class CardsList extends Component {
     }
 
     if (prevProps.guestSessionId !== guestSessionId) {
-      console.log('мы зашли в componentDidUpdate в ветку guestSessionId');
       this.updateIdsRattedFilms();
     }
 
-    if (prevState.antiDblRequest !== antiDblRequest) {
-      console.log('ЗАШЛИ В ВЕТКУ  prevState.antiDblRequest !== antiDblRequest !!!!!!');
-    }
+    // if (prevState.antiDblRequest !== antiDblRequest) {
+    //   console.log('ЗАШЛИ В ВЕТКУ  prevState.antiDblRequest !== antiDblRequest !!!!!!');
+    // }
   }
 
   componentDidCatch() {
@@ -88,7 +86,7 @@ export default class CardsList extends Component {
     const { guestSessionId } = this.props;
     this.filmsService
       .rateMovie(guestSessionId, id, rate)
-      .then((result) => console.log('результат установки оценки на сервере: ', result.status_message))
+      .then((result) => result.status_message)
       .catch(this.onRatingError);
     this.setState(({ ratedFilms }) => ({ ratedFilms: { ...ratedFilms, [id]: rate } }));
   };
@@ -102,7 +100,6 @@ export default class CardsList extends Component {
 
   filmsLoaded = (result) => {
     const { activeTab, changeTotalResults } = this.props;
-    console.log('в CardList - searchFilms или ratedFilms: ', result);
     if (result.totalResults === 0) {
       this.setState({
         listFilms: [],
@@ -112,6 +109,19 @@ export default class CardsList extends Component {
       this.setState({ listFilms: result.films, status: 'ok' });
     }
     changeTotalResults(result.totalResults);
+  };
+
+  filmsGenreLoaded = (result) => {
+    const { changeTotalResults } = this.props;
+    // if (result.totalResults === 0) {
+    //   this.setState({
+    //     listFilms: [],
+    //     status: activeTab === 'search' ? 'notfound' : 'norated',
+    //   });
+    // } else {
+    this.setState({ listFilms: result.films, status: 'ok' });
+    // }
+    changeTotalResults(20);
   };
 
   searchFilms = (pageReset) => {
@@ -126,12 +136,17 @@ export default class CardsList extends Component {
     }
   };
 
-  ratedFilms = (pageReset) => {
+  ratedFilmsPanel = (pageReset) => {
     const { guestSessionId } = this.props;
     let { pageNumber } = this.props;
     this.onLoading();
     if (pageReset) pageNumber = pageReset;
     this.filmsService.getAllRattedFilms(guestSessionId, pageNumber).then(this.filmsLoaded).catch(this.onError);
+  };
+
+  pickGenre = (id) => {
+    this.onLoading();
+    this.filmsService.pickGenre(id).then(this.filmsGenreLoaded).catch(this.onError);
   };
 
   render() {
@@ -182,6 +197,7 @@ export default class CardsList extends Component {
               ratedFilms={ratedFilms}
               changeRate={this.changeRate}
               resizeWidth={resizeWidth}
+              pickGenre={this.pickGenre}
             />
             <Pagination
               className="pagination"
@@ -234,7 +250,7 @@ CardsList.propTypes = {
   changePagination: PropTypes.func,
 };
 
-function ShowFilms({ listFilms, ratedFilms, changeRate, resizeWidth }) {
+function ShowFilms({ listFilms, ratedFilms, changeRate, resizeWidth, pickGenre }) {
   return listFilms.map((film) => (
     <Col md={12} xs={24} key={film.id}>
       <CardFilm
@@ -248,6 +264,7 @@ function ShowFilms({ listFilms, ratedFilms, changeRate, resizeWidth }) {
         ratedFilms={ratedFilms}
         changeRate={changeRate}
         resizeWidth={resizeWidth}
+        pickGenre={pickGenre}
       />
     </Col>
   ));

@@ -32,6 +32,7 @@ class FilmsService {
       acc.push(elem);
       return acc;
     }, []);
+    // films = films.slice(0, 2); // ВАРИАНТ ДЛЯ ТЕСТА, УБРАТЬ!!
     return {
       films,
       totalResults: +data.total_results,
@@ -61,6 +62,11 @@ class FilmsService {
 
   getPremiers = async (page = 1) => {
     const body = await this.getResource('/movie/now_playing', `&page=${page}`);
+    return FilmsService.formatMovies(body);
+  };
+
+  pickGenre = async (id, page = 1) => {
+    const body = await this.getResource('/discover/movie', `&with_genres=${id}&page=${page}&sort_by=vote_count.desc`);
     return FilmsService.formatMovies(body);
   };
 
@@ -105,7 +111,6 @@ class FilmsService {
       resultFromServ = await this.getAllRattedFilms(guestSessionId, i);
       resultArr = [...resultArr, ...resultFromServ.films];
     }
-    console.log('Оценённые фильмы от сервера: ', resultArr);
     return formatRatingId(resultArr);
   };
 
