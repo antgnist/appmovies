@@ -12,7 +12,7 @@ import './App.css';
 
 export default class App extends Component {
   state = {
-    pageNumber: 1,
+    pageNumber: { page: 1 },
     totalResults: 0,
     searchQuery: '',
     genres: null,
@@ -61,7 +61,7 @@ export default class App extends Component {
     this.debounceResize(e);
   };
 
-  changePagination = (num) => this.changeInState('pageNumber', num);
+  changePagination = (num) => this.changeInState('pageNumber', { page: num });
 
   changeTotalResults = (num) => this.changeInState('totalResults', num);
 

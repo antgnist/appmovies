@@ -12,7 +12,7 @@ function Header({ searchQuery, changeSearchQuery, activeTab, changeActiveTab, pa
   const tabChange = (activeKey) => {
     changeActiveTab(activeKey);
     changePagination(prevPage);
-    setPrevPage(pageNumber);
+    setPrevPage(pageNumber.page);
   };
 
   return (
