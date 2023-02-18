@@ -104,7 +104,7 @@ export default class App extends Component {
             <Alert
               type="warning"
               message="Uh.. "
-              description="Problems with your internet connection."
+              description="Problems with your internet connection!"
               showIcon
               className="warning"
             />
