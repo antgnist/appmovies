@@ -26,18 +26,12 @@ export default class CardsList extends Component {
   componentDidUpdate(prevProps) {
     const { pageNumber, searchQuery, guestSessionId, activeTab } = this.props;
 
-    if (prevProps.pageNumber !== pageNumber && activeTab === prevProps.activeTab) {
+    if (
+      (prevProps.pageNumber !== pageNumber && activeTab === prevProps.activeTab) ||
+      prevProps.activeTab !== activeTab
+    ) {
       if (activeTab === 'search') this.searchFilms();
       if (activeTab === 'rated') this.ratedFilmsPanel();
-    }
-
-    if (prevProps.activeTab !== activeTab) {
-      if (activeTab === 'rated') {
-        this.ratedFilmsPanel();
-      }
-      if (activeTab === 'search') {
-        this.searchFilms();
-      }
     }
 
     if (prevProps.searchQuery !== searchQuery && activeTab === 'search') {
